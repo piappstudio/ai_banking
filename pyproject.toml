@@ -1,0 +1,10 @@
+[project]
+name = "ai-banking"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.12.4",
+    "mysql-connector-python>=9.4.0",
+]
