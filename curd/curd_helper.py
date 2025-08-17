@@ -12,8 +12,10 @@ def get_db_connection():
     """
     return mysql.connector.connect(
         host="localhost",
+        port=8889,  # important for MAMP
         user="root",
-        password="your_password",
+        password="root",
+    unix_socket="/Applications/MAMP/tmp/mysql/mysql.sock",
         database="banking_system"
     )
 
@@ -142,3 +144,37 @@ def create_transaction(account_id, transaction_type, amount, description=""):
     conn.close()
     return transaction_id
 
+
+def transfer_funds(from_account_id, to_account_id, amount, description="Fund Transfer"):
+    """
+    Transfer funds from one account to another.
+
+    Args:
+        from_account_id (int): Source account ID.
+        to_account_id (int): Destination account ID.
+        amount (float): Transfer amount.
+        description (str): Description.
+
+    Returns:
+        bool: True if success, False otherwise.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT balance FROM accounts WHERE account_id = %s", (from_account_id,))
+        balance = cursor.fetchone()[0]
+        if balance < amount:
+            raise ValueError("Insufficient funds.")
+
+        create_transaction(from_account_id, "debit", amount, description)
+        create_transaction(to_account_id, "credit", amount, description)
+        conn.commit()
+        return True
+    except Exception as e:
+        conn.rollback()
+        print("Transfer failed:", e)
+        return False
+    finally:
+        cursor.close()
+        conn.close()

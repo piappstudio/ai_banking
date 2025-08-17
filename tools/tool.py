@@ -1,5 +1,8 @@
 import json
+from curd.curd_helper import get_db_connection, get_customer, get_accounts_by_customer, create_transaction
 from server import mcp
+from decimal import Decimal
+
 
 # ---------------------------
 # ABSTRACT BANKING FUNCTIONS
@@ -31,7 +34,7 @@ def get_customer_summary(customer_id):
 # @mcp.route("/customer/<int:customer_id>/accounts", methods=["GET"])
 # @mcp.auth_required
 @mcp.tool()
-def transfer_funds(from_account_id, to_account_id, amount, description="Fund Transfer"):
+def make_transfer_funds(from_account_id, to_account_id, amount, description="Fund Transfer"):
     """
     Transfer funds from one account to another.
 
@@ -50,17 +53,17 @@ def transfer_funds(from_account_id, to_account_id, amount, description="Fund Tra
     try:
         cursor.execute("SELECT balance FROM accounts WHERE account_id = %s", (from_account_id,))
         balance = cursor.fetchone()[0]
-        if balance < amount:
+        if float(balance) < float(amount):
             raise ValueError("Insufficient funds.")
 
         create_transaction(from_account_id, "debit", amount, description)
         create_transaction(to_account_id, "credit", amount, description)
         conn.commit()
-        return True
+        return(f"Transfer of {amount} from account {from_account_id} to {to_account_id} successful.")
     except Exception as e:
         conn.rollback()
-        print("Transfer failed:", e)
-        return False
+        return(f"Transfer failed:", e)
+
     finally:
         cursor.close()
         conn.close()
