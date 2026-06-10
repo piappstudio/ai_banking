@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking App - Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            max-width: 375px;
+            margin: 0 auto;
+            height: 812px;
+            background: #f5f5f5;
+            border-radius: 40px;
+            border: 12px solid #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .screen {
+            flex: 1;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            padding: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-section {
+            padding: 24px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-status {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .menu-items {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            text-decoration: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(4px);
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .menu-label {
+            flex: 1;
+        }
+
+        .menu-arrow {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+
+        .menu-section-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            padding: 0 4px;
+            text-transform: uppercase;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 0;
+            font-size: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        /* Custom scrollbar */
+        .menu-items::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .menu-items::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .menu-items::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        .menu-items::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>●●●●●</span>
+        </div>
+
+        <div class="screen">
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="profile-avatar">👤</div>
+                <div class="profile-info">
+                    <div class="profile-name">John Doe</div>
+                    <div class="profile-status">Premium Member</div>
+                </div>
+            </div>
+
+            <!-- Menu Items -->
+            <div class="menu-items">
+                <!-- Account Section -->
+                <div class="menu-section-title">Account</div>
+
+                <button class="menu-item">
+                    <div class="menu-icon">🏠</div>
+                    <div class="menu-label">Home</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">📊</div>
+                    <div class="menu-label">Transaction</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">💳</div>
+                    <div class="menu-label">Wallet</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">🎟️</div>
+                    <div class="menu-label">Card</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <!-- Settings Section -->
+                <div class="menu-section-title">Settings</div>
+
+                <button class="menu-item">
+                    <div class="menu-icon">⚙️</div>
+                    <div class="menu-label">Settings</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">🔐</div>
+                    <div class="menu-label">Security</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">📞</div>
+                    <div class="menu-label">Support</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">📋</div>
+                    <div class="menu-label">Terms & Privacy</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <!-- Profile Section -->
+                <div class="menu-section-title">Profile</div>
+
+                <button class="menu-item">
+                    <div class="menu-icon">👤</div>
+                    <div class="menu-label">Edit Profile</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">📍</div>
+                    <div class="menu-label">Preferences</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+
+                <button class="menu-item">
+                    <div class="menu-icon">🚪</div>
+                    <div class="menu-label">Logout</div>
+                    <div class="menu-arrow">›</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📊</div>
+                <span>Transaction</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📍</div>
+                <span>ATM</span>
+            </div>
+            <div class="nav-item active">
+                <div class="nav-icon">👤</div>
+                <span>Menu</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

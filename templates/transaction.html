@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking App - Transaction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            max-width: 375px;
+            margin: 0 auto;
+            height: 812px;
+            background: #f5f5f5;
+            border-radius: 40px;
+            border: 12px solid #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            background: white;
+            color: #000;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .screen {
+            flex: 1;
+            background: white;
+            padding: 24px 16px;
+            overflow-y: auto;
+            color: #1a1a1a;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .back-btn {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #000;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .selector-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #f0f0f0;
+            color: #666;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .selector-btn.active {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .card-transaction {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-transaction::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+
+        .card-amount {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .chart-section {
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 12px;
+        }
+
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100px;
+            gap: 6px;
+        }
+
+        .bar {
+            width: 20px;
+            background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .bar.negative {
+            background: linear-gradient(180deg, #86efac 0%, #22c55e 100%);
+        }
+
+        .budget-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .budget-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .budget-description {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .budget-icon {
+            font-size: 32px;
+        }
+
+        .budget-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-chart {
+            margin-top: 12px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .stat-chart-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border-radius: 4px;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            padding: 12px 0;
+            font-size: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            color: #666;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+            color: #2563eb;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>🔙</span>
+            <span>Card Transaction</span>
+            <span>⚙️</span>
+        </div>
+
+        <div class="screen">
+            <!-- Selector Tabs -->
+            <div class="selector">
+                <button class="selector-btn active">Monthly</button>
+                <button class="selector-btn">Yearly</button>
+            </div>
+
+            <!-- Card Transaction -->
+            <div class="card-transaction">
+                <div class="card-header">
+                    <span>Card</span>
+                    <span>💳</span>
+                </div>
+                <div class="card-amount">USD 23,548</div>
+
+                <!-- Mini Chart -->
+                <div class="chart-section">
+                    <div class="chart-title">Transaction trends</div>
+                    <div class="chart">
+                        <div class="bar" style="height: 40%;"></div>
+                        <div class="bar" style="height: 60%;"></div>
+                        <div class="bar" style="height: 50%;"></div>
+                        <div class="bar negative" style="height: 70%;"></div>
+                        <div class="bar" style="height: 45%;"></div>
+                        <div class="bar" style="height: 65%;"></div>
+                        <div class="bar" style="height: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Budget Section -->
+            <div class="budget-section">
+                <div class="budget-header">
+                    <div>
+                        <div class="budget-title">Monthly Budget</div>
+                        <div class="budget-description">Lorem ipsum dolor sit amet</div>
+                    </div>
+                    <div class="budget-icon">💼</div>
+                </div>
+
+                <!-- Budget Stats -->
+                <div class="budget-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Spent</div>
+                        <div class="stat-value">5,734</div>
+                        <div class="stat-chart">
+                            <div class="stat-chart-fill" style="width: 75%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Remaining</div>
+                        <div class="stat-value">734</div>
+                        <div class="stat-chart">
+                            <div class="stat-chart-fill" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span>Home</span>
+            </div>
+            <div class="nav-item active">
+                <div class="nav-icon">📊</div>
+                <span>Transaction</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📍</div>
+                <span>ATM</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">👤</div>
+                <span>Profile</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
