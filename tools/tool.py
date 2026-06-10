@@ -101,18 +101,43 @@ def get_transactions(account_id, start_date=None, end_date=None):
     conn.close()
     return transactions
 
+# Basic dynamic resource returning a string
+@mcp.resource("resource://greeting")
+def get_greeting():
+    """Provides a simple greeting message."""
+    return "Hello from FastMCP Resources!"
+
+@mcp.resource("data://config")
+def get_config() -> dict:
+    """Provides the application configuration."""
+    return {"theme": "dark", "version": "1.0"}
+
+
+@mcp.tool()
+def get_welcome_message():
+    return {
+        "greetings": "Welcome to Pi AI Banking",
+    }
+
+@mcp.prompt()
+def code_review_prompt(question:str) -> str:
+    """Android question prompt"""
+    return f""" Consider youself andorid software engineer, now, answer : {question} """
+
 @mcp.tool()
 def get_transaction_status(transaction_id):
     """
     Retrieve the status and details of a given transaction.
+    Use template://transaction to visualize the transaction data.
 
     Args:
         transaction_id (int): The unique ID of the transaction.
 
     Returns:
         dict: {
-            "status": str,         # "completed" or "not found"
-            "transaction": dict    # Transaction details if found
+            "status": str,                    # "completed" or "not found"
+            "transaction": dict,              # Transaction details if found
+            "template_uri": str               # Resource URI for visualization
         }
     """
     conn = get_db_connection()
@@ -125,10 +150,95 @@ def get_transaction_status(transaction_id):
     if transaction:
         return {
             "status": "completed",
-            "transaction": transaction
+            "transaction": transaction,
+            "template_uri": "template://transaction",
+            "visualization_hint": "Use the transaction template to display this data"
         }
     else:
         return {
             "status": "not found",
-            "transaction": None
+            "transaction": None,
+            "template_uri": "template://transaction"
         }
+
+
+@mcp.tool()
+def get_home_dashboard(customer_id):
+    """
+    Get customer dashboard data for home screen visualization.
+    Use template://home to display the dashboard.
+
+    Args:
+        customer_id (int): Customer ID.
+
+    Returns:
+        dict: Dashboard data with template reference
+    """
+    customer = get_customer(customer_id)
+    accounts = get_accounts_by_customer(customer_id)
+    
+    return {
+        "customer": customer,
+        "accounts": accounts,
+        "template_uri": "template://home",
+        "visualization_hint": "Load template://home to render this dashboard"
+    }
+
+
+@mcp.tool()
+def get_transaction_analytics(account_id, start_date=None, end_date=None):
+    """
+    Get transaction analytics and budget data.
+    Use template://transaction to visualize the analytics.
+
+    Args:
+        account_id (int): Account ID.
+        start_date (str): Optional. Format 'YYYY-MM-DD'.
+        end_date (str): Optional. Format 'YYYY-MM-DD'.
+
+    Returns:
+        dict: Analytics data with template reference
+    """
+    transactions = get_transactions(account_id, start_date, end_date)
+    
+    total_spent = sum(float(t.get('amount', 0)) for t in transactions if t.get('type') == 'debit')
+    total_received = sum(float(t.get('amount', 0)) for t in transactions if t.get('type') == 'credit')
+    
+    return {
+        "transactions": transactions,
+        "analytics": {
+            "total_spent": total_spent,
+            "total_received": total_received,
+            "transaction_count": len(transactions)
+        },
+        "template_uri": "template://transaction",
+        "visualization_hint": "Use template://transaction to display analytics and budget breakdown"
+    }
+
+
+@mcp.tool()
+def get_user_menu(customer_id):
+    """
+    Get user profile and menu data.
+    Use template://menu to display the profile and navigation.
+
+    Args:
+        customer_id (int): Customer ID.
+
+    Returns:
+        dict: Profile data with template reference
+    """
+    customer = get_customer(customer_id)
+    accounts = get_accounts_by_customer(customer_id)
+    
+    return {
+        "profile": customer,
+        "accounts": accounts,
+        "menu_items": [
+            {"section": "Account", "items": ["Home", "Transaction", "Wallet", "Card"]},
+            {"section": "Settings", "items": ["Settings", "Security", "Support", "Terms & Privacy"]},
+            {"section": "Profile", "items": ["Edit Profile", "Preferences", "Logout"]}
+        ],
+        "template_uri": "template://menu",
+        "visualization_hint": "Load template://menu to render the profile and menu"
+    }
