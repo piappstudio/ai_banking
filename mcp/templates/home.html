@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking App - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            max-width: 375px;
+            margin: 0 auto;
+            height: 812px;
+            background: #f5f5f5;
+            border-radius: 40px;
+            border: 12px solid #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .screen {
+            flex: 1;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            padding: 24px 16px;
+            overflow-y: auto;
+            color: white;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+
+        .card-number {
+            font-size: 13px;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+
+        .card-chip {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 4px;
+        }
+
+        .amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .cardholder {
+            font-size: 13px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.95;
+        }
+
+        .transactions {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .transaction-item {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #000;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .transaction-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .transaction-date {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .positive {
+            color: #10b981;
+        }
+
+        .negative {
+            color: #ef4444;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 0;
+            font-size: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>●●●●●</span>
+        </div>
+
+        <div class="screen">
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="balance-header">
+                    <span class="card-number">Bank Name</span>
+                    <div class="card-chip"></div>
+                </div>
+                <div class="amount">USD 40,900</div>
+                <div class="card-footer">
+                    <div>
+                        <div class="card-number">John Doe</div>
+                        <div class="cardholder">8432 12785 45678 1011</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn">
+                    <div class="action-icon">💸</div>
+                    <span>Transfer</span>
+                </button>
+                <button class="action-btn">
+                    <div class="action-icon">💳</div>
+                    <span>Pay</span>
+                </button>
+                <button class="action-btn">
+                    <div class="action-icon">📊</div>
+                    <span>Accounts</span>
+                </button>
+            </div>
+
+            <!-- Latest Transactions -->
+            <div style="color: white; margin-bottom: 12px;">
+                <div class="section-title">Latest Transactions</div>
+            </div>
+            <div class="transactions">
+                <div class="transaction-item">
+                    <div class="transaction-left">
+                        <div class="transaction-icon" style="background: #e8f5e9;">🏪</div>
+                        <div>
+                            <div class="transaction-name">Mark Smith</div>
+                            <div class="transaction-date">Transfer from 128.00 456</div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount positive">+ $237.00</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-left">
+                        <div class="transaction-icon" style="background: #fce4ec;">🏦</div>
+                        <div>
+                            <div class="transaction-name">James Hiu</div>
+                            <div class="transaction-date">Transfer from 129.00 456</div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount negative">- 200.00</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-left">
+                        <div class="transaction-icon" style="background: #fff3e0;">💰</div>
+                        <div>
+                            <div class="transaction-name">Mark Zuck</div>
+                            <div class="transaction-date">Transfer from 129.00 456</div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount positive">+ $237.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📊</div>
+                <span>Transaction</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📍</div>
+                <span>ATM</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">👤</div>
+                <span>Profile</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

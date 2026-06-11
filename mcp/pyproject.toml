@@ -1,0 +1,11 @@
+[project]
+name = "ai-banking"
+version = "0.1.0"
+description = "Secure AI Banking MCP Server with 2FA support"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.12.4",
+    "requests>=2.32.3",
+    "python-dotenv>=1.0.1",
+]
