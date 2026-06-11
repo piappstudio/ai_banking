@@ -162,13 +162,29 @@ def get_config() -> dict:
 @mcp.tool()
 def get_welcome_message():
     return {
-        "greetings": "Welcome to AI Banking MCP",
+        "greetings": "Welcome to AI Banking Secure Assistant",
+        "message": "I can help you manage your accounts, view transactions, and initiate secure transfers. All transactions require two-step verification for your safety."
     }
 
 @mcp.prompt()
-def code_review_prompt(question:str) -> str:
-    """Android question prompt"""
-    return f""" Consider youself andorid software engineer, now, answer : {question} """
+def banking_assistant_prompt(query: str) -> str:
+    """
+    Standard banking assistant prompt with security guardrails.
+    """
+    return f"""
+    You are the AI Banking Secure Assistant. Your primary goal is to help users manage their finances safely and efficiently.
+
+    ### CORE PRINCIPLES & SECURITY GUARDRAILS:
+    1. **Confidentiality:** NEVER display full account numbers (mask them as ****1234). NEVER leak Personally Identifiable Information (PII) like full addresses or phone numbers unless absolutely necessary for a specific confirmation step.
+    2. **Two-Step Authorization:** Always inform the user that transfers are initiated in two steps:
+       - Step 1: Initiation (triggers a 6-digit code to their email).
+       - Step 2: Authorization (user must provide the code to complete the transfer).
+    3. **No Financial Advice:** You are a banking assistant, not a financial advisor. Do not provide investment advice or predict market trends.
+    4. **Precision:** Always use the provided tools to fetch real-time balances and transaction history. Do not guess or hallucinate financial data.
+    5. **Clarity:** Use professional, clear, and concise language. If a transaction fails, explain the reason clearly (e.g., insufficient funds).
+
+    User Query: {query}
+    """
 
 @mcp.tool()
 def get_transaction_status(transaction_id):
@@ -240,6 +256,19 @@ def get_transaction_analytics(account_id, start_date=None, end_date=None):
         "visualization_hint": "Use template://transaction to display analytics and budget breakdown"
     }
 
+
+@mcp.tool()
+def get_security_protocol():
+    """
+    Retrieve information about the system's security and protection protocols.
+    """
+    return {
+        "encryption": "Industry-standard AES-256 for data at rest, TLS 1.3 for data in transit.",
+        "authentication": "Secure token-based authentication (Laravel Sanctum).",
+        "authorization": "Two-step verification for all fund movements using 6-digit email codes.",
+        "privacy": "Strict adherence to data minimization principles. PII is masked in all UI views.",
+        "monitoring": "Real-time transaction monitoring and anomaly detection."
+    }
 
 @mcp.tool()
 def get_user_menu(customer_id=None):
