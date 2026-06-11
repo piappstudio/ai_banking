@@ -6,11 +6,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\PayeeController;
-use App\Http\Controllers\ElectionController;
-use App\Http\Controllers\ConstituencyController;
-use App\Http\Controllers\CandidateController;
-use App\Http\Controllers\VoteController;
-use App\Http\Controllers\AnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +46,7 @@ Route::prefix('v1')->group(function () {
         // Transaction Routes
         Route::prefix('transactions')->group(function () {
             Route::post('/transfer', [TransactionController::class, 'transfer']);
+            Route::post('/authorize', [TransactionController::class, 'authorizeTransfer']);
         });
 
         // Payee Routes
