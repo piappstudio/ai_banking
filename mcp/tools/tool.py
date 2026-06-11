@@ -3,6 +3,8 @@ import requests
 from app import mcp
 from decimal import Decimal
 
+from typing import Optional
+
 # ---------------------------
 # API CONFIGURATION
 # ---------------------------
@@ -10,7 +12,7 @@ BASE_URL = "http://localhost:8000/api/v1"
 SESSION_TOKEN = None
 
 @mcp.tool()
-def login(email, password):
+def login(email: str, password: str):
     """
     Authenticate with the AI Banking system using email and password.
     
@@ -98,15 +100,16 @@ def get_customer_summary(customer_id=None):
 
 
 @mcp.tool()
-def make_transfer_funds(from_account_id, to_account_id, amount, description="Fund Transfer"):
+def make_transfer_funds(from_account_id: int, to_account_id: int = None, to_payee_id: int = None, amount: float = 0, description: str = "Fund Transfer"):
     """
-    Initiate a fund transfer between accounts. 
+    Initiate a fund transfer between accounts or to a saved payee. 
     Note: This will send a 6-digit code to the user's email.
     The user must then call authorize_transfer with the verification_id and code.
 
     Args:
         from_account_id (int): Source account ID.
-        to_account_id (int): Destination account ID.
+        to_account_id (int): Destination account ID (optional if to_payee_id is provided).
+        to_payee_id (int): Destination payee ID (optional if to_account_id is provided).
         amount (float): Transfer amount.
         description (str): Description.
 
@@ -115,17 +118,24 @@ def make_transfer_funds(from_account_id, to_account_id, amount, description="Fun
     """
     data = {
         "from_account_id": from_account_id,
-        "to_account_id": to_account_id,
         "amount": float(amount),
         "description": description
     }
+    if to_account_id is not None:
+        data["to_account_id"] = to_account_id
+    if to_payee_id is not None:
+        data["to_payee_id"] = to_payee_id
     
     result = api_request("POST", "/transactions/transfer", data=data)
     
     if "error" in result:
         return f"Transfer initiation failed: {result['error']}"
         
-    return f"Transfer initiated. Verification ID: {result['verification_id']}. Code sent to email."
+    verification_msg = f"Transfer initiated. Verification ID: {result['verification_id']}. Code sent to email."
+    if 'debug_code' in result and result['debug_code']:
+        verification_msg += f" [DEBUG CODE: {result['debug_code']}]"
+    
+    return verification_msg
 
 @mcp.tool()
 def authorize_transfer(verification_id, code):
@@ -316,3 +326,51 @@ def get_user_menu(customer_id=None):
         "template_uri": "template://menu",
         "visualization_hint": "Load template://menu to render the profile and menu"
     }
+
+@mcp.tool()
+def add_payee(nickname, account_number=None, routing_number=None, phone_number=None, email=None, address=None):
+    """
+    Add a new payee to the user's account.
+
+    Args:
+        nickname (str): A nickname for the payee.
+        account_number (str): Optional account number.
+        routing_number (str): Optional routing number.
+        phone_number (str): Optional phone number (for Zelle).
+        email (str): Optional email address.
+        address (str): Optional physical address.
+
+    Returns:
+        str: Success message or error.
+    """
+    data = {
+        "nickname": nickname,
+        "accountNumber": account_number,
+        "routingNumber": routing_number,
+        "phoneNumber": phone_number,
+        "email": email,
+        "address": address
+    }
+    # Filter out None values
+    data = {k: v for k, v in data.items() if v is not None}
+    
+    result = api_request("POST", "/payees", data=data)
+    
+    if "error" in result:
+        return f"Failed to add payee: {result['error']}"
+        
+    return f"Payee '{nickname}' added successfully."
+
+@mcp.tool()
+def list_payees():
+    """
+    List all saved payees for the authenticated user.
+
+    Returns:
+        str: JSON string containing the list of payees.
+    """
+    payees = api_request("GET", "/payees")
+    if "error" in payees:
+        return json.dumps(payees)
+        
+    return json.dumps(payees, default=str)

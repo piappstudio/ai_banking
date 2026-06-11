@@ -21,10 +21,18 @@ class TransactionController extends BaseController
     {
         $validated = $request->validate([
             'from_account_id' => 'required|exists:accounts,id',
-            'to_account_id' => 'required|exists:accounts,id|different:from_account_id',
+            'to_account_id' => 'nullable|different:from_account_id',
+            'to_payee_id' => 'nullable|exists:payees,id',
             'amount' => 'required|numeric|min:0.01',
             'description' => 'nullable|string|max:255',
         ]);
+
+        $toAccountValue = $request->input('to_account_id');
+        $toPayeeValue = $request->input('to_payee_id');
+
+        if (($toAccountValue === null || $toAccountValue == 0) && $toPayeeValue === null) {
+            return $this->errorResponse('Either to_account_id or to_payee_id is required', 422);
+        }
 
         $fromAccount = $request->user()->accounts()->find($validated['from_account_id']);
         if (!$fromAccount) {
@@ -35,7 +43,17 @@ class TransactionController extends BaseController
             return $this->errorResponse('Insufficient balance', 400);
         }
 
-        $toAccount = Account::find($validated['to_account_id']);
+        $recipientName = 'External Transfer';
+        $toAccount = null;
+        $toPayee = null;
+
+        if (!empty($validated['to_account_id']) && $validated['to_account_id'] != 0) {
+            $toAccount = Account::find($validated['to_account_id']);
+            $recipientName = $toAccount->account_number;
+        } elseif (!empty($validated['to_payee_id'])) {
+            $toPayee = \App\Models\Payee::find($validated['to_payee_id']);
+            $recipientName = $toPayee->nickname;
+        }
 
         // Generate 6-digit code
         $code = (string) random_int(100000, 999999);
@@ -44,9 +62,10 @@ class TransactionController extends BaseController
         $verification = TransactionVerification::create([
             'user_id' => $request->user()->id,
             'from_account_id' => $fromAccount->id,
-            'to_account_id' => $toAccount->id,
+            'to_account_id' => $toAccount ? $toAccount->id : null,
+            'to_payee_id' => $toPayee ? $toPayee->id : null,
             'amount' => $validated['amount'],
-            'description' => $validated['description'] ?? 'Transfer to ' . $toAccount->account_number,
+            'description' => $validated['description'] ?? 'Transfer to ' . $recipientName,
             'code' => $code,
             'expires_at' => now()->addMinutes(10),
         ]);
@@ -56,19 +75,16 @@ class TransactionController extends BaseController
             Mail::to($request->user()->email)->send(new TransactionCodeMail(
                 $code,
                 $validated['amount'],
-                $toAccount->account_number,
+                $recipientName,
                 $verification->description
             ));
         } catch (\Exception $e) {
-            // Log error but proceed for demo purposes if mail fails
             \Illuminate\Support\Facades\Log::error('Mail failed: ' . $e->getMessage());
         }
 
         return $this->successResponse([
             'verification_id' => $verification->id,
             'expires_at' => $verification->expires_at->toIso8601String(),
-            // For testing/demo purposes, we return the code in the response if needed,
-            // but in production we'd only send it via email.
             'debug_code' => config('app.debug') ? $code : null,
         ], 'Authorization code sent to your registered email.');
     }
@@ -104,7 +120,6 @@ class TransactionController extends BaseController
         }
 
         $fromAccount = Account::find($verification->from_account_id);
-        $toAccount = Account::find($verification->to_account_id);
 
         if ($fromAccount->balance < $verification->amount) {
             return $this->errorResponse('Insufficient balance to complete the transaction', 400);
@@ -122,14 +137,17 @@ class TransactionController extends BaseController
                 'description' => $verification->description,
             ]);
 
-            // Credit to receiver
-            $toAccount->increment('balance', $verification->amount);
-            $credit = Transaction::create([
-                'account_id' => $toAccount->id,
-                'transaction_type' => 'credit',
-                'amount' => $verification->amount,
-                'description' => $verification->description,
-            ]);
+            // If it's an internal transfer, credit the receiver
+            if ($verification->to_account_id) {
+                $toAccount = Account::find($verification->to_account_id);
+                $toAccount->increment('balance', $verification->amount);
+                Transaction::create([
+                    'account_id' => $toAccount->id,
+                    'transaction_type' => 'credit',
+                    'amount' => $verification->amount,
+                    'description' => $verification->description,
+                ]);
+            }
 
             // Mark as verified
             $verification->update(['verified' => true]);

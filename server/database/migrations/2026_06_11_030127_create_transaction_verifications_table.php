@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('from_account_id')->constrained('accounts')->onDelete('cascade');
-            $table->foreignId('to_account_id')->constrained('accounts')->onDelete('cascade');
+            $table->foreignId('to_account_id')->nullable()->constrained('accounts')->onDelete('cascade');
+            $table->foreignId('to_payee_id')->nullable()->constrained('payees')->onDelete('cascade');
             $table->decimal('amount', 15, 2);
             $table->string('description')->nullable();
             $table->string('code', 6);

@@ -13,6 +13,7 @@ class TransactionVerification extends Model
         'user_id',
         'from_account_id',
         'to_account_id',
+        'to_payee_id',
         'amount',
         'description',
         'code',

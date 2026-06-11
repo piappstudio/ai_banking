@@ -96,6 +96,8 @@ Add the following to your Claude Desktop configuration file (usually found at `~
 | `get_transactions` | Fetch history for a specific account. |
 | `get_transaction_analytics`| View spending and income trends. |
 | `get_security_protocol` | Check system protection details. |
+| `add_payee` | Add a new banking contact or Zelle payee. |
+| `list_payees` | View all saved payees. |
 
 ---
 
