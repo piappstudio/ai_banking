@@ -83,7 +83,14 @@ uv run main.py --sse
 ```
 
 **Expose via ngrok:**
+To start a new tunnel:
 ```bash
+ngrok http 4001
+```
+
+To kill any existing ngrok processes and restart:
+```bash
+pkill -f ngrok
 ngrok http 4001
 ```
 
