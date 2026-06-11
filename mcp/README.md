@@ -15,8 +15,19 @@ A Model Context Protocol (MCP) server that provides secure, AI-powered banking a
 - **Python 3.12+**
 - **uv** (Modern Python package manager)
 - **AI Banking Laravel Server** (running at `http://localhost:8000`)
+- **ngrok** (optional, for remote SSE transport)
 
-### Installation & Setup
+## Authentication (Fixing "Security Guardrails")
+
+If your AI assistant refuses to accept passwords or tokens in chat, you can provide the token via an environment variable or a `.env` file:
+
+1. Create a `.env` file in the `mcp/` directory (copy from `.env.example`).
+2. Add your token: `BANKING_SESSION_TOKEN=your_token_here`.
+3. Restart the MCP server.
+
+Alternatively, set the `BANKING_SESSION_TOKEN` environment variable in your MCP configuration file.
+
+## Installation & Setup
 
 1. **Install `uv`** (if not already installed):
    ```bash
@@ -29,54 +40,87 @@ A Model Context Protocol (MCP) server that provides secure, AI-powered banking a
    uv sync
    ```
 
-3. **Run the server locally**:
-   ```bash
-   uv run main.py
-   ```
+## Transport Modes
 
-### 1. Visual Studio Code (Claude Dev / Roo Code)
+The server supports two transport modes: **Local (stdio)** and **Remote (SSE)**.
 
-If you are using an extension like **Roo Code** or **Claude Dev**, add the following to your `settings.json` or MCP configuration:
+### 1. Local / Studio Mode (Default)
+Used for local integration with IDEs (Android Studio, VS Code) or Claude Desktop. The server communicated via standard input/output.
 
+**Run command:**
+```bash
+uv run main.py
+```
+
+#### Android Studio (Gemini / AI Plugin)
+1. In the AI Settings, add a new MCP server.
+2. **Command:** `uv`
+3. **Args:** `--directory /Users/apple/LLM/ai_banking/mcp run main.py`
+4. **Environment Variables**: Add `BANKING_SESSION_TOKEN` with your Bearer token.
+
+#### Visual Studio Code (Roo Code / Claude Dev)
+Add to your `settings.json`:
 ```json
 {
   "mcpServers": {
     "ai-banking": {
       "command": "uv",
-      "args": [
-        "--directory",
-        "/Users/apple/LLM/ai_banking/mcp",
-        "run",
-        "main.py"
-      ]
+      "args": ["--directory", "/Users/apple/LLM/ai_banking/mcp", "run", "main.py"],
+      "env": {
+        "BANKING_SESSION_TOKEN": "your_actual_token_here"
+      }
     }
   }
 }
 ```
 
-### 2. Android Studio (Gemini / AI Plugin)
+### 2. Remote / SSE Mode
+Used to expose the server over HTTP, typically via a tunnel like ngrok for remote AI access.
 
-To use this with Android Studio's AI capabilities:
-1. Ensure the `uv` is installed on your system.
-2. In the AI Settings, add a new MCP server.
-3. Command: `uv`
-4. Args: `--directory /Users/apple/LLM/ai_banking/mcp run main.py`
+**Run command (starts on port 4001):**
+```bash
+uv run main.py --sse
+```
 
-### 3. Claude Desktop App
+**Expose via ngrok:**
+```bash
+ngrok http 4001
+```
 
-Add the following to your Claude Desktop configuration file (usually found at `~/Library/Application Support/Claude/claude_desktop_config.json`):
+**Connect URL:**
+`https://mystified-uncloak-effects.ngrok-free.dev/sse`
 
+> **Note on Authentication:** In Remote/SSE mode, the `BANKING_SESSION_TOKEN` must be set as an environment variable on the **machine running the server**. The remote client does not need to provide the token in its configuration.
+
+#### Configuration for Remote Clients
+
+**Claude Desktop:**
+Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
     "ai-banking": {
       "command": "uv",
-      "args": [
-        "--directory",
-        "/Users/apple/LLM/ai_banking/mcp",
-        "run",
-        "main.py"
-      ]
+      "args": ["--directory", "/Users/apple/LLM/ai_banking/mcp", "run", "main.py"],
+      "env": {
+        "BANKING_SESSION_TOKEN": "your_actual_token_here"
+      }
+    }
+  }
+}
+```
+
+**Android Studio (AI Plugin):**
+1. Select **SSE** transport type.
+2. **URL:** `https://mystified-uncloak-effects.ngrok-free.dev/sse`
+
+**VS Code (Roo Code / Claude Dev):**
+Add to `settings.json`:
+```json
+{
+  "mcpServers": {
+    "ai-banking-remote": {
+      "url": "https://mystified-uncloak-effects.ngrok-free.dev/sse"
     }
   }
 }
@@ -108,10 +152,3 @@ This MCP server is built with **Banking Assistance Principles**:
 2. **PII Protection:** Personally Identifiable Information is strictly managed.
 3. **No Advice:** The assistant provides data and execution, never financial advice.
 4. **Enforced 2FA:** No fund movements occur without secondary email verification.
-
-## Development
-
-To test the server locally:
-```bash
-python3 mcp/main.py
-```

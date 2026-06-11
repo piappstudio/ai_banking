@@ -1,5 +1,7 @@
 import json
 import requests
+import os
+from dotenv import load_dotenv
 from app import mcp
 from decimal import Decimal
 
@@ -8,8 +10,11 @@ from typing import Optional
 # ---------------------------
 # API CONFIGURATION
 # ---------------------------
-BASE_URL = "http://localhost:8000/api/v1"
-SESSION_TOKEN = None
+# Load environment variables from .env file
+load_dotenv()
+
+BASE_URL = os.environ.get("BANKING_API_BASE_URL", "http://localhost:8000/api/v1")
+SESSION_TOKEN = os.environ.get("BANKING_SESSION_TOKEN")
 
 @mcp.tool()
 def login(email: str, password: str):
