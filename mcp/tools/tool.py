@@ -1,6 +1,6 @@
 import json
 import requests
-from mcp.server import mcp
+from app import mcp
 from decimal import Decimal
 
 # ---------------------------

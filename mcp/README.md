@@ -29,9 +29,10 @@ A Model Context Protocol (MCP) server that provides secure, AI-powered banking a
    uv sync
    ```
 
----
-
-## Configuration
+3. **Run the server locally**:
+   ```bash
+   uv run main.py
+   ```
 
 ### 1. Visual Studio Code (Claude Dev / Roo Code)
 
