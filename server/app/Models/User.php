@@ -45,5 +45,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'verified_email' => 'boolean',
     ];
+
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class);
+    }
+
+    public function payees(): HasMany
+    {
+        return $this->hasMany(Payee::class);
+    }
 }
 

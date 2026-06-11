@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\PayeeController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ConstituencyController;
 use App\Http\Controllers\CandidateController;
@@ -32,6 +35,30 @@ Route::prefix('v1')->group(function () {
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/verify-reset-code', [AuthController::class, 'verifyResetCode']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    });
+
+    // ============================================================================
+    // Protected Routes (Require Authentication via Sanctum)
+    // ============================================================================
+    Route::middleware('auth:sanctum')->group(function () {
+        // Account Routes
+        Route::prefix('accounts')->group(function () {
+            Route::get('/', [AccountController::class, 'index']);
+            Route::get('/{id}', [AccountController::class, 'show']);
+            Route::get('/{id}/transactions', [AccountController::class, 'transactions']);
+        });
+
+        // Transaction Routes
+        Route::prefix('transactions')->group(function () {
+            Route::post('/transfer', [TransactionController::class, 'transfer']);
+        });
+
+        // Payee Routes
+        Route::prefix('payees')->group(function () {
+            Route::get('/', [PayeeController::class, 'index']);
+            Route::post('/', [PayeeController::class, 'store']);
+            Route::delete('/{id}', [PayeeController::class, 'destroy']);
+        });
     });
 });
 
