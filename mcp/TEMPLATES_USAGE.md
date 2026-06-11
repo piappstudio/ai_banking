@@ -23,8 +23,9 @@ template://list         → List all available templates
 ```
 
 ### Programmatically
+
 ```python
-from templates_resource import get_home_template, get_transaction_template, get_menu_template
+from mcp.templates_resource import get_home_template, get_transaction_template, get_menu_template
 
 html_home = get_home_template()
 html_transaction = get_transaction_template()

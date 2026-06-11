@@ -70,7 +70,8 @@ templates/
 The templates are registered in `templates_resource.py` and imported in `main.py`:
 
 ```python
-import templates_resource
+
+from mcp import templates_resource
 ```
 
 This automatically exposes all templates as MCP resources when the server starts.

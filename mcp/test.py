@@ -1,4 +1,4 @@
-from tools.tool import make_transfer_funds
+from mcp.tools.tool import make_transfer_funds
 
 # Run the seeding
 if __name__ == "__main__":
