@@ -132,8 +132,6 @@ def make_transfer_funds(from_account_id: int, to_account_id: int = None, to_paye
         return f"Transfer initiation failed: {result['error']}"
         
     verification_msg = f"Transfer initiated. Verification ID: {result['verification_id']}. Code sent to email."
-    if 'debug_code' in result and result['debug_code']:
-        verification_msg += f" [DEBUG CODE: {result['debug_code']}]"
     
     return verification_msg
 

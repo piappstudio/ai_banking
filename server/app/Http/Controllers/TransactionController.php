@@ -85,7 +85,6 @@ class TransactionController extends BaseController
         return $this->successResponse([
             'verification_id' => $verification->id,
             'expires_at' => $verification->expires_at->toIso8601String(),
-            'debug_code' => config('app.debug') ? $code : null,
         ], 'Authorization code sent to your registered email.');
     }
 
