@@ -7,47 +7,72 @@ from decimal import Decimal
 # API CONFIGURATION
 # ---------------------------
 BASE_URL = "http://localhost:8000/api/v1"
-AUTH_TOKEN = None
+SESSION_TOKEN = None
 
-def get_auth_token():
+@mcp.tool()
+def login(email, password):
     """
-    Authenticate with the API and get a token.
-    In a real scenario, this would use secure credentials.
-    """
-    global AUTH_TOKEN
-    if AUTH_TOKEN:
-        return AUTH_TOKEN
+    Authenticate with the AI Banking system using email and password.
     
+    Args:
+        email (str): User's email address.
+        password (str): User's password.
+        
+    Returns:
+        str: Success message or error.
+    """
+    global SESSION_TOKEN
     try:
         response = requests.post(f"{BASE_URL}/auth/login", json={
-            "email": "rajesh@example.com",
-            "password": "SecurePass123"
+            "email": email,
+            "password": password
         })
         if response.status_code == 200:
-            AUTH_TOKEN = response.json()['data']['token']
-            return AUTH_TOKEN
+            SESSION_TOKEN = response.json()['data']['token']
+            return "Login successful. Session token updated."
+        else:
+            return f"Login failed: {response.json().get('message', 'Invalid credentials')}"
     except Exception as e:
-        print(f"Auth failed: {e}")
-    return None
+        return f"Authentication error: {str(e)}"
+
+@mcp.tool()
+def set_bearer_token(token):
+    """
+    Manually set a Bearer token for the current session.
+    
+    Args:
+        token (str): The plain-text token from a previous login or signup.
+        
+    Returns:
+        str: Success message.
+    """
+    global SESSION_TOKEN
+    SESSION_TOKEN = token
+    return "Bearer token updated for the current session."
 
 def api_request(method, endpoint, data=None, params=None):
     """Helper to make authenticated API requests."""
-    token = get_auth_token()
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    if not SESSION_TOKEN:
+        return {"error": "Authentication required. Please call 'login' or 'set_bearer_token' first.", "status": 401}
+        
+    headers = {"Authorization": f"Bearer {SESSION_TOKEN}", "Accept": "application/json"}
     
     url = f"{BASE_URL}{endpoint}"
     
-    if method == "GET":
-        response = requests.get(url, headers=headers, params=params)
-    elif method == "POST":
-        response = requests.post(url, headers=headers, json=data)
-    else:
-        return None
-        
-    if response.status_code >= 400:
-        return {"error": response.json().get('message', 'API request failed'), "status": response.status_code}
-        
-    return response.json().get('data')
+    try:
+        if method == "GET":
+            response = requests.get(url, headers=headers, params=params)
+        elif method == "POST":
+            response = requests.post(url, headers=headers, json=data)
+        else:
+            return {"error": f"Unsupported method: {method}"}
+            
+        if response.status_code >= 400:
+            return {"error": response.json().get('message', 'API request failed'), "status": response.status_code}
+            
+        return response.json().get('data')
+    except Exception as e:
+        return {"error": f"Network error: {str(e)}"}
 
 # ---------------------------
 # ABSTRACT BANKING FUNCTIONS
